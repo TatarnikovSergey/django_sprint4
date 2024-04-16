@@ -12,7 +12,9 @@ SECRET_KEY = 'django-insecure-@^@1e56cyfzw*3(t_+qw@yth8kw7x$^-(yvj2(dp353j7(p5l6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1'
+]
 
 # Application definition
 
@@ -118,3 +120,5 @@ LEN_TEXT_ADMIN_LIST = 5
 LOGIN_REDIRECT_URL = 'blog:index'
 
 LOGIN_URL = 'login'
+
+CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
