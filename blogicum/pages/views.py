@@ -1,16 +1,15 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView
 
 
-def about(request):
-    """Функция обработки запроса по адресу pages/about/."""
+class About(TemplateView):
+    """Обработка запроса по адресу pages/about/."""
     template_name = 'pages/about.html'
-    return render(request, template_name)
 
 
-def rules(request):
-    """Функция обработки запроса по адресу pages/rules/."""
+class Rules(TemplateView):
+    """Обработка запроса по адресу pages/rules/."""
     template_name = 'pages/rules.html'
-    return render(request, template_name)
 
 
 def page_not_found(request, exception):
