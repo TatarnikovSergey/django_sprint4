@@ -1,11 +1,12 @@
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView, ListView, \
     DeleteView
 
-from .forms import PostForm
+from .forms import PostForm, CommentForm
 from .models import Post, Category
 
 
@@ -43,6 +44,13 @@ class PostDetailView(DetailView):
     pk_url_kwarg = 'post_id'
     model = Post
     template_name = 'blog/detail.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = CommentForm()
+        context['comments'] = (
+            self.object.comments.select_related('author')
+        )
+        return context
 
 
 def category_posts(request, category_slug):
@@ -91,3 +99,23 @@ class PostDeleteView(OnlyAuthorMixin, DeleteView):
     pk_url_kwarg = 'post_id'
     template_name = 'blog/create.html'
     success_url = reverse_lazy('blog:index')
+
+
+@login_required
+def add_comment(request, post_id):
+    # Получаем объект дня рождения или выбрасываем 404 ошибку.
+    post = get_object_or_404(Post, pk=post_id)
+    # Функция должна обрабатывать только POST-запросы.
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        # Создаём объект поздравления, но не сохраняем его в БД.
+        comment = form.save(commit=False)
+        # В поле author передаём объект автора поздравления.
+        comment.author = request.user
+        # В поле birthday передаём объект дня рождения.
+        comment.post = post
+        # Сохраняем объект в БД.
+        comment.save()
+    # Перенаправляем пользователя назад, на страницу дня рождения.
+    return redirect('blog:post_detail', pk=post_id)
+    # return redirect('blog:post_detail', pk=post_id)
