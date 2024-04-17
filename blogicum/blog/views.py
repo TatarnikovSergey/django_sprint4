@@ -2,28 +2,47 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, DetailView, ListView, \
+    DeleteView
 
 from .forms import PostForm
 from .models import Post, Category
 
 
-def index(request):
-    """Функция обработки запроса по адресу главной станицы."""
+class OnlyAuthorMixin:
+    def dispatch(self, request, *args, **kwargs):
+        post = get_object_or_404(Post, pk=self.kwargs[self.pk_url_kwarg])
+        if post.author != self.request.user:
+            return redirect('blog:post_detail',
+                            post_id=self.kwargs[self.pk_url_kwarg])
+        return super().dispatch(request, *args, **kwargs)
+
+
+# def index(request):
+#     """Функция обработки запроса по адресу главной станицы."""
+#     template_name = 'blog/index.html'
+#     post_list = Post.objects.all().order_by(
+#         '-pub_date', 'title')[:settings.SHOW_POSTS]
+#     context = {'page_obj': post_list}
+#     # context = {'post_list': post_list}
+#     return render(request, template_name, context)
+class IndexView(ListView):
+    """Обработка запроса по адресу главной станицы."""
+    model = Post
     template_name = 'blog/index.html'
-    post_list = Post.objects.all().order_by(
-        '-pub_date', 'title')[:settings.SHOW_POSTS]
-    context = {'page_obj': post_list}
-    # context = {'post_list': post_list}
-    return render(request, template_name, context)
+    paginate_by = settings.SHOW_POSTS
 
 
-def post_detail(request, post_pk):
-    """Функция обработки запроса по адресу /posts/<int:id>/."""
+# def post_detail(request, post_pk):
+#     """Функция обработки запроса по адресу /posts/<int:id>/."""
+#     template_name = 'blog/detail.html'
+#     post = get_object_or_404(Post.objects.all(), id=post_pk, )
+#     context = {'post': post}
+#     return render(request, template_name, context)
+class PostDetailView(DetailView):
+    pk_url_kwarg = 'post_id'
+    model = Post
     template_name = 'blog/detail.html'
-    post = get_object_or_404(Post.objects.all(), id=post_pk, )
-    context = {'post': post}
-    return render(request, template_name, context)
 
 
 def category_posts(request, category_slug):
@@ -39,6 +58,15 @@ def category_posts(request, category_slug):
     return render(request, template_name, context)
 
 
+# def post_create(request):
+#     template_name = 'blog/create.html'
+#     form = PostForm(request.POST or None, files=request.FILES or None,)
+#     if form.is_valid():
+#         post = form.save(commit=False)
+#         post.author = request.user
+#         post.save()
+#         return redirect('blog:index')
+#     return render(request, template_name, {'form': form})
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     form_class = PostForm
@@ -49,19 +77,17 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-# def post_create(request):
-#     template_name = 'blog/create.html'
-#     form = PostForm(request.POST or None, files=request.FILES or None,)
-#     if form.is_valid():
-#         post = form.save(commit=False)
-#         post.author = request.user
-#         post.save()
-#         return redirect('blog:index')
-#     return render(request, template_name, {'form': form})
 
-
-class PostEditView(UpdateView):
+class PostEditView(OnlyAuthorMixin, UpdateView):
     model = Post
     form_class = PostForm
     pk_url_kwarg = 'post_id'
     template_name = 'blog/create.html'
+
+
+class PostDeleteView(OnlyAuthorMixin, DeleteView):
+    model = Post
+    form_class = PostForm
+    pk_url_kwarg = 'post_id'
+    template_name = 'blog/create.html'
+    success_url = reverse_lazy('blog:index')
