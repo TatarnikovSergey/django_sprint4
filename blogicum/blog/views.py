@@ -1,8 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import CreateView, UpdateView, DetailView, ListView, \
     DeleteView
 
@@ -101,21 +104,60 @@ class PostDeleteView(OnlyAuthorMixin, DeleteView):
     success_url = reverse_lazy('blog:index')
 
 
+class Profile(ListView):
+    model = User
+    template_name = 'blog/profile.html'
+    slug_url_kwargs = 'username'
+    # paginate_by = settings.SHOW_POSTS
+    queryset = Post.objects.all()
+    #
+    # post_list = Post.objects.all().order_by(
+    #         '-pub_date', 'title')[:settings.SHOW_POSTS]
+    #     context = {'page_obj': post_list}
+    # queryset = Post.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        username = self.kwargs['username']
+        profile = get_object_or_404(User, username=username)
+        context['profile'] = profile
+        # # post_list = username.posts
+        # post_list = Post.objects.all().select_related(
+        #     'author', 'location', 'category').filter(
+        #     is_published=True,
+        #     pub_date__lte=timezone.now(),
+        #     category__is_published=True).order_by('-pub_date')
+        # if Post.author != self.request.user:
+        # # # posts = posts.all()
+        # #         return posts
+        # # posts = username.posts
+        #     context['page_obj'] = post_list
+        return context
+    # def get_queryset(self):
+    #     author = get_object_or_404(User, username=self.kwargs['username'])
+    #     posts = Post.objects.all()
+    #     # posts = author.posts.select_related(
+    #     #     'category', 'author', 'location'
+    #     # )
+    #     if author != self.request.user:
+    #         # posts = posts.all()
+    #         return posts
+
+
 @login_required
 def add_comment(request, post_id):
-    # Получаем объект дня рождения или выбрасываем 404 ошибку.
+    # Получаем объект  или выбрасываем 404 ошибку.
     post = get_object_or_404(Post, pk=post_id)
     # Функция должна обрабатывать только POST-запросы.
     form = CommentForm(request.POST)
     if form.is_valid():
-        # Создаём объект поздравления, но не сохраняем его в БД.
+        # Создаём объект, но не сохраняем его в БД.
         comment = form.save(commit=False)
-        # В поле author передаём объект автора поздравления.
+        # В поле author передаём объект автора.
         comment.author = request.user
-        # В поле birthday передаём объект дня рождения.
+        # В поле comment передаём объект.
         comment.post = post
         # Сохраняем объект в БД.
         comment.save()
-    # Перенаправляем пользователя назад, на страницу дня рождения.
-    return redirect('blog:post_detail', pk=post_id)
-    # return redirect('blog:post_detail', pk=post_id)
+    # Перенаправляем пользователя назад, на страницу поста.
+    return redirect('blog:post_detail', post_id=post_id)

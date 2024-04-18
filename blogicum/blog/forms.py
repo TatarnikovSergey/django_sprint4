@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 from .models import Post, Comment
@@ -13,8 +14,8 @@ class PostForm(forms.ModelForm):
         ).strftime('%Y-%m-%dT%H:%M')
     class Meta:
         model = Post
-        # exclude = ('author',)
-        fields = ('title', 'text', 'image', 'location', 'category', 'pub_date')
+        exclude = ('author',)
+        # fields = ('title', 'text', 'image', 'location', 'category', 'pub_date')
         widgets = {
             'pub_date': forms.DateTimeInput(
                 format='%Y-%m-%dT%H:%M', attrs={'type': 'datetime-local'}
@@ -27,3 +28,9 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ('text',)
 
+
+
+# class ProfileForm(forms.ModelForm):
+#     class Meta:
+#         model = User
+#         fields = '__all__'
