@@ -10,7 +10,7 @@ from django.views.generic import CreateView, UpdateView, DetailView, ListView, \
     DeleteView
 
 from .forms import PostForm, CommentForm
-from .models import Post, Category
+from .models import Post, Category, Comment
 
 
 class OnlyAuthorMixin:
@@ -107,14 +107,21 @@ class PostDeleteView(OnlyAuthorMixin, DeleteView):
 class Profile(ListView):
     model = User
     template_name = 'blog/profile.html'
-    slug_url_kwargs = 'username'
-    # paginate_by = settings.SHOW_POSTS
-    queryset = Post.objects.all()
-    #
-    # post_list = Post.objects.all().order_by(
-    #         '-pub_date', 'title')[:settings.SHOW_POSTS]
-    #     context = {'page_obj': post_list}
-    # queryset = Post.objects.all()
+    slug_url_kwarg = 'username'
+    paginate_by = 10
+
+    def get_queryset(self):
+        author = get_object_or_404(User, username=self.kwargs['username'])
+        posts = author.posts.select_related(
+            'author', 'location', 'category').order_by('-pub_date')
+        if author != self.request.user:
+            posts = posts.filter(
+                is_published=True,
+                pub_date__lte=timezone.now(),
+                category__is_published=True).order_by('-pub_date')
+            return posts
+        return posts
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -139,9 +146,7 @@ class Profile(ListView):
     #     # posts = author.posts.select_related(
     #     #     'category', 'author', 'location'
     #     # )
-    #     if author != self.request.user:
-    #         # posts = posts.all()
-    #         return posts
+
 
 
 @login_required
@@ -161,3 +166,14 @@ def add_comment(request, post_id):
         comment.save()
     # Перенаправляем пользователя назад, на страницу поста.
     return redirect('blog:post_detail', post_id=post_id)
+
+
+def edit_comment(request, post_id, comment_id):
+    post = get_object_or_404(Post, pk=post_id)
+    isinstance = get_object_or_404(Comment, pk=comment_id)
+    form = CommentForm(request.POST or None, instance=isinstance)
+    context = {'form': form, 'post_id': post, 'comment_id': isinstance }
+    if form.is_valid():
+        form.save()
+
+    return render(request, 'blog/comment.html', context)

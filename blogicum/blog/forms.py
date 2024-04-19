@@ -14,8 +14,8 @@ class PostForm(forms.ModelForm):
         ).strftime('%Y-%m-%dT%H:%M')
     class Meta:
         model = Post
-        exclude = ('author',)
-        # fields = ('title', 'text', 'image', 'location', 'category', 'pub_date')
+        # exclude = ('author',)
+        fields = ('title', 'text', 'image', 'location', 'category', 'pub_date')
         widgets = {
             'pub_date': forms.DateTimeInput(
                 format='%Y-%m-%dT%H:%M', attrs={'type': 'datetime-local'}
