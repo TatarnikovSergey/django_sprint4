@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.views import PasswordChangeView
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy, reverse
@@ -149,14 +150,43 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('blog:post_detail',
                        kwargs={'post_id': self.kwargs.get('post_id')})
 
+
 class CommentDeleteView(LoginRequiredMixin, DeleteView):
     model = Comment
     form_class = CommentForm
     pk_field = 'comment_id'
     pk_url_kwarg = 'comment_id'
     template_name = 'blog/comment.html'
-#     success_url = reverse_lazy('blog:index')
+
 
     def get_success_url(self):
         return reverse('blog:post_detail',
                        kwargs={'post_id': self.kwargs.get('post_id')})
+
+
+class ProfileUpdate(LoginRequiredMixin, UpdateView):
+    model = User
+    fields = ('username', 'first_name', 'last_name', 'email')
+    template_name = 'blog/user.html'
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_success_url(self):
+        return reverse('blog:profile',
+                       kwargs={'username': self.request.user})
+
+
+# class UserPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+#     """
+#     Изменение пароля пользователя
+#     """
+#     model = User
+#     template_name = 'blog/user.html'
+#
+#     def get_object(self, queryset=None):
+#         return self.request.user
+#
+#     def get_success_url(self):
+#         return reverse('blog:profile',
+#                        kwargs={'username': self.request.user})
