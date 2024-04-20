@@ -99,7 +99,7 @@ class Post(BaseModel):
         'Изображение публикации',
         blank=True, upload_to='blog_images')
 
-    objects = PostManager()
+    # objects = PostManager()
 
     class Meta:
         verbose_name = 'публикация'

@@ -5,9 +5,7 @@ from . import views
 app_name = 'blog'
 
 urlpatterns = [
-    # path('', views.index, name='index'),
     path('', views.IndexView.as_view(), name='index'),
-    # path('posts/<int:post_pk>/', views.post_detail, name='post_detail'),
     path(
         'posts/<int:post_id>/',
         views.PostDetailView.as_view(),
@@ -16,7 +14,6 @@ urlpatterns = [
     path('category/<slug:category_slug>/', views.category_posts,
          name='category_posts'),
     path('posts/create/', views.PostCreateView.as_view(), name='create_post'),
-    # path('posts/create/', views.post_create, name='create_post'),
     path(
         'posts/<int:post_id>/edit/',
         views.PostEditView.as_view(),
@@ -29,7 +26,9 @@ urlpatterns = [
     ),
     path('posts/<int:post_id>/comment/',
          views.add_comment, name='add_comment'),
-    path('posts/<int:post_id>/comment/<int:comment_id>',
-         views.edit_comment, name='edit_comment'),
+    path('posts/<int:post_id>/edit_comment/<int:comment_id>',
+         views.CommentUpdateView.as_view(), name='edit_comment'),
+    path('posts/<int:post_id>/delete_comment/<int:comment_id>',
+         views.CommentDeleteView.as_view(), name='delete_comment'),
     path('profile/<slug:username>/', views.Profile.as_view(), name='profile')
 ]
