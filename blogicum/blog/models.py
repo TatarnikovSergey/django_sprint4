@@ -3,8 +3,6 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 
-from .managers import PostManager
-
 User = get_user_model()
 
 
@@ -99,8 +97,6 @@ class Post(BaseModel):
         'Изображение публикации',
         blank=True, upload_to='blog_images')
 
-    # objects = PostManager()
-
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
@@ -135,6 +131,3 @@ class Comment(models.Model):
         default_related_name = 'comments'
         verbose_name = 'комментарий'
         verbose_name_plural = 'комментарии'
-
-    # def get_absolute_url(self):
-    #     return reverse('blog:post_detail', kwargs={'post_id': self.pk})

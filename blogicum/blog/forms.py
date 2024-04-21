@@ -1,17 +1,18 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.utils import timezone
 
 from .models import Post, Comment
 
 
 class PostForm(forms.ModelForm):
-    """Форма публикации"""
+    """Форма публикации."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['pub_date'].initial = timezone.localtime(
             timezone.now()
         ).strftime('%Y-%m-%dT%H:%M')
+
     class Meta:
         model = Post
         # exclude = ('author',)
@@ -24,13 +25,8 @@ class PostForm(forms.ModelForm):
 
 
 class CommentForm(forms.ModelForm):
+    """Форма комментария."""
+
     class Meta:
         model = Comment
         fields = ('text',)
-
-
-
-# class ProfileForm(forms.ModelForm):
-#     class Meta:
-#         model = User
-#         fields = '__all__'

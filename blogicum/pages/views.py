@@ -4,11 +4,13 @@ from django.views.generic import TemplateView
 
 class About(TemplateView):
     """Обработка запроса по адресу pages/about/."""
+
     template_name = 'pages/about.html'
 
 
 class Rules(TemplateView):
     """Обработка запроса по адресу pages/rules/."""
+
     template_name = 'pages/rules.html'
 
 
