@@ -117,7 +117,7 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LEN_FIELD_TITLE = 256
-SHOW_POSTS = 5
+SHOW_POSTS = 10
 LEN_TEXT_ADMIN_LIST = 5
 
 LOGIN_REDIRECT_URL = 'blog:index'
