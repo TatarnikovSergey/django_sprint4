@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -103,6 +104,13 @@ class PostEditView(OnlyAuthorPostMixin, UpdateView):
 class PostDeleteView(OnlyAuthorPostMixin, DeleteView):
     """Удаление публикации."""
 
+    def get_context_data(self, **kwargs):
+        instance = get_object_or_404(Post, pk=self.kwargs[self.pk_url_kwarg])
+        context = super().get_context_data(**kwargs)
+        form = PostForm(instance=instance)
+        context['form'] = form
+        return context
+
     success_url = reverse_lazy('blog:index')
 
 
@@ -123,8 +131,9 @@ class Profile(ListView):
         posts = self.author.posts.select_related(
             'author', 'location', 'category').order_by('-pub_date')
         if self.author != self.request.user:
-            return PublishedMixin.get_queryset(self.queryset)
-        return posts
+            return PublishedMixin.get_queryset(self.queryset
+                                               ).filter(author=self.author)
+        return posts.annotate(comment_count=Count('comments'))
 
 
 @login_required
