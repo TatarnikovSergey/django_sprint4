@@ -14,8 +14,6 @@ from .mixins import PublishedMixin, OnlyAuthorPostMixin, OnlyAuthorCommentMixin
 from .models import Post, Category
 
 
-#
-
 class IndexView(PublishedMixin, ListView):
     """Обработка запроса по адресу главной станицы."""
 
