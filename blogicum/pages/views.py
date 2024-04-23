@@ -17,18 +17,15 @@ class Rules(TemplateView):
 
 def page_not_found(request, exception):
     """Обработка ошибки 404 кастомной страницей."""
-
     return render(request, 'pages/404.html', status=HTTPStatus.NOT_FOUND)
 
 
 def csrf_failure(request, reason=''):
     """Обработка ошибки 403 кастомной страницей."""
-
     return render(request, 'pages/403csrf.html', status=HTTPStatus.FORBIDDEN)
 
 
 def server_error(request):
     """Обработка ошибки 500 кастомной страницей."""
-
     return render(request, 'pages/500.html',
                   status=HTTPStatus.INTERNAL_SERVER_ERROR)
