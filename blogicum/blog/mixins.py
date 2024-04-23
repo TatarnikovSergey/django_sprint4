@@ -10,7 +10,7 @@ from .models import Post, Comment
 
 class OnlyAuthorCommentMixin(LoginRequiredMixin):
     """Миксин предоставления прав редактирования комментариев только автором"""
-    
+
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comment.html'
@@ -34,7 +34,7 @@ class OnlyAuthorCommentMixin(LoginRequiredMixin):
 
 class OnlyAuthorPostMixin(LoginRequiredMixin):
     """Миксин предоставления прав редактирования публикаций только автором"""
-    
+
     model = Post
     form_class = PostForm
     pk_url_kwarg = 'post_id'
@@ -50,8 +50,8 @@ class OnlyAuthorPostMixin(LoginRequiredMixin):
 
 class PublishedMixin:
     """
-    Миксин представления только опубликованных постов на текущий момент времени,
-    в том числе подсчет количества комментариев к публикациям.
+    Миксин представления только опубликованных постов на текущий момент
+    времени, в том числе подсчет количества комментариев к публикациям.
     """
 
     def get_queryset(self):
