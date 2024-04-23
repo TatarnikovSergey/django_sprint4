@@ -9,6 +9,8 @@ from .models import Post, Comment
 
 
 class OnlyAuthorCommentMixin(LoginRequiredMixin):
+    """Миксин предоставления прав редактирования комментариев только автором"""
+    
     model = Comment
     form_class = CommentForm
     template_name = 'blog/comment.html'
@@ -17,7 +19,6 @@ class OnlyAuthorCommentMixin(LoginRequiredMixin):
         return reverse('blog:post_detail',
                        kwargs={'post_id': self.kwargs['post_id']})
 
-    #
     def get_object(self):
         return get_object_or_404(
             Comment.objects.filter(post=self.kwargs['post_id']),
@@ -32,6 +33,8 @@ class OnlyAuthorCommentMixin(LoginRequiredMixin):
 
 
 class OnlyAuthorPostMixin(LoginRequiredMixin):
+    """Миксин предоставления прав редактирования публикаций только автором"""
+    
     model = Post
     form_class = PostForm
     pk_url_kwarg = 'post_id'
@@ -46,6 +49,10 @@ class OnlyAuthorPostMixin(LoginRequiredMixin):
 
 
 class PublishedMixin:
+    """
+    Миксин представления только опубликованных постов на текущий момент времени,
+    в том числе подсчет количества комментариев к публикациям.
+    """
 
     def get_queryset(self):
         return Post.objects.prefetch_related(
